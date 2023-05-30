@@ -1,11 +1,69 @@
 package user_server
 
-import "github.com/gin-gonic/gin"
+import (
+	"EasyIO/biz/dal/model"
+	"EasyIO/biz/dal/mysql"
+	"EasyIO/biz/dal/param"
+	"EasyIO/biz/middleware"
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
 
-func Login(c *gin.Context) {
+// Sign 用户注册
+func Sign(c *gin.Context) {
+	var req param.Sign
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
+	// 校验用户
+	check := mysql.QueryUserByName(req.Username)
+	if check != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "该用户名已被注册"})
+		return
+	}
+	user := &model.User{
+		Username: req.Username,
+		Password: req.Password,
+		PhoneNum: req.PhoneNum,
+	}
+
+	// 新增用户
+	err := mysql.CreateUser(user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "新增用户失败"})
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "注册成功"})
 }
 
-func Check(c *gin.Context) {
+// Login 用户登录
+func Login(c *gin.Context) {
+	var req param.Login
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
+	// 校验用户
+	check := mysql.QueryUserByName(req.Username)
+	if check == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "用户名尚未注册"})
+		return
+	}
+
+	// 校验密码
+	if req.Password != check.Password {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "用户名或密码错误"})
+		return
+	}
+
+	// 签发令牌
+	token, err := middleware.GenerateToken(int64(check.ID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "令牌签发错误"})
+	}
+
+	// 返回令牌
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }

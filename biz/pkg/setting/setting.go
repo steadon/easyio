@@ -16,6 +16,8 @@ var (
 	Proxy      string
 	Prefix     string
 	StorageDir string
+
+	Dns string
 )
 
 func init() {
@@ -25,7 +27,8 @@ func init() {
 		log.Fatalf("Fail to parse 'conf/app.ini': %v", err)
 	}
 	LoadServer()
-	LoadStorage()
+	LoadIO()
+	LoadMysql()
 }
 
 func LoadServer() {
@@ -38,7 +41,7 @@ func LoadServer() {
 	WriteTimeout = time.Duration(sec.Key("WRITE_TIMEOUT").MustInt(60)) * time.Second
 }
 
-func LoadStorage() {
+func LoadIO() {
 	sec, err := Cfg.GetSection("io")
 	if err != nil {
 		log.Fatalf("Fail to get section 'request': %v", err)
@@ -46,4 +49,12 @@ func LoadStorage() {
 	Proxy = sec.Key("PROXY").MustString("images")
 	Prefix = sec.Key("PREFIX").MustString("http://localhost:8000/")
 	StorageDir = sec.Key("STORAGE_DIR").MustString("images")
+}
+
+func LoadMysql() {
+	sec, err := Cfg.GetSection("mysql")
+	if err != nil {
+		log.Fatalf("Fail to get section 'request': %v", err)
+	}
+	Dns = sec.Key("DNS").MustString("root:123456@tcp(localhost:3306)/easyio?charset=utf8mb4&parseTime=True&loc=Local")
 }
