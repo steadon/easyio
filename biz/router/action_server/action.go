@@ -123,8 +123,8 @@ func DeleteDir(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "目录删除成功"})
 }
 
-// ShowDir 获取目录
-func ShowDir(c *gin.Context) {
+// ShowRoot 获取目录
+func ShowRoot(c *gin.Context) {
 	// 指定目录路径
 	dirPath := setting.StorageDir
 
@@ -152,6 +152,48 @@ func ShowDir(c *gin.Context) {
 		log.Printf("Failed to walk directory: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "遍历目录失败"})
 		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"dirPaths": dirPaths})
+}
+
+// ShowDir 获取目录
+func ShowDir(c *gin.Context) {
+	// 指定目录路径
+	path := c.Query("group")
+
+	// 拼接完整目录路径
+	dirPath := filepath.Join(setting.StorageDir, path)
+
+	// 创建切片返回响应
+	dirPaths := make([]string, 0)
+
+	// 打开指定目录
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		// 处理打开目录失败的错误
+		log.Printf("Failed to open directory: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "打开目录失败"})
+		return
+	}
+	defer dir.Close()
+
+	// 读取目录中的文件和子目录
+	fileInfo, err := dir.Readdir(-1)
+	if err != nil {
+		// 处理读取目录内容失败的错误
+		log.Printf("Failed to read directory: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "读取目录失败"})
+		return
+	}
+
+	// 遍历目录中的文件和子目录
+	for _, info := range fileInfo {
+		if info.IsDir() {
+			// 添加子目录名称
+			dirName := info.Name()
+			dirPaths = append(dirPaths, dirName)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"dirPaths": dirPaths})
