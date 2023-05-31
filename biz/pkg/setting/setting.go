@@ -59,7 +59,7 @@ func LoadMysql() {
 	if err != nil {
 		log.Fatalf("Fail to get section 'request': %v", err)
 	}
-	Dns = sec.Key("DNS").MustString("root:123456@tcp(localhost:3306)/easyio?charset=utf8mb4&parseTime=True&loc=Local")
+	Dns = sec.Key("DNS").MustString("root:123456@tcp(localhost:3305)/easyio?charset=utf8mb4&parseTime=True&loc=Local")
 }
 
 func LoadJWT() {
@@ -67,5 +67,5 @@ func LoadJWT() {
 	if err != nil {
 		log.Fatalf("Fail to get section 'request': %v", err)
 	}
-	Dns = sec.Key("SIGN").MustString("easyio-key")
+	SIGN = sec.Key("SIGN").MustString("easyio-key")
 }
