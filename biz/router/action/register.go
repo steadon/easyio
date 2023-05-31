@@ -1,4 +1,4 @@
-package action_server
+package action
 
 import "github.com/gin-gonic/gin"
 

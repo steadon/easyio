@@ -3,8 +3,8 @@ package router
 import (
 	"EasyIO/biz/middleware"
 	"EasyIO/biz/pkg/setting"
-	"EasyIO/biz/router/action_server"
-	"EasyIO/biz/router/user_server"
+	"EasyIO/biz/router/action"
+	"EasyIO/biz/router/user"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,8 +19,8 @@ func InitRouter() *gin.Engine {
 	// 注册静态文件处理中间件
 	router.Static(setting.Proxy, imgDir)
 	// 注册接口
-	user_server.Register(router)
-	action_server.Register(router)
+	user.Register(router)
+	action.Register(router)
 
 	return router
 }

@@ -1,4 +1,4 @@
-package action_server
+package action
 
 import (
 	"EasyIO/biz/dal/param"
