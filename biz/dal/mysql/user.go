@@ -12,6 +12,16 @@ func QueryUserByName(name string) *model.User {
 	return &user
 }
 
+// QueryUserByID 通过用户ID查询用户
+func QueryUserByID(ID int64) *model.User {
+	var user model.User
+	result := DB.Where("ID = ?", ID).First(&user)
+	if result.Error != nil {
+		return nil
+	}
+	return &user
+}
+
 // CreateUser 新增用户
 func CreateUser(user *model.User) error {
 	result := DB.Create(user)

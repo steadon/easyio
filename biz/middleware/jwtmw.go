@@ -71,7 +71,7 @@ func CheckRole(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	_, err := VerifyAndParseToken(token)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "身份过期"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "身份过期"})
 		return
 	}
 }

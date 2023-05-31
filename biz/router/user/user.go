@@ -68,3 +68,23 @@ func Login(c *gin.Context) {
 	// 返回令牌
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
+
+func Info(c *gin.Context) {
+	// 鉴权
+	token := c.GetHeader("Authorization")
+	load, err := middleware.VerifyAndParseToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "身份过期"})
+		return
+	}
+	// 获取ID
+	ID, _ := middleware.ExtractUserIDFromToken(load)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "token解析失败"})
+		return
+	}
+	// 查询用户名
+	username := mysql.QueryUserByID(ID).Username
+	// 返回用户名
+	c.JSON(http.StatusOK, gin.H{"username": username})
+}
