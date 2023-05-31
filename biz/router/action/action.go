@@ -3,9 +3,8 @@ package action
 import (
 	"EasyIO/biz/dal/param"
 	"EasyIO/biz/dal/result"
+	"EasyIO/biz/middleware"
 	"EasyIO/biz/pkg/setting"
-	"crypto/rand"
-	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -34,12 +33,12 @@ func UploadImg(c *gin.Context) {
 
 	// 不传name则使用随机串
 	if name == "" {
-		name, _ = generateRandomString(8)
+		name, _ = middleware.GenerateRandomString(8)
 	}
 
 	// 如果有后缀则去掉后缀
 	if strings.ContainsAny(name, ".") {
-		name = getFileNameWithoutExtension(name)
+		name = middleware.GetFileNameWithoutExtension(name)
 	}
 
 	// 拼接图片全名
@@ -250,22 +249,4 @@ func ShowDir(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{"dirPaths": dirPaths})
-}
-
-// 生成随机字符串
-func generateRandomString(length int) (string, error) {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return "", err
-	}
-	randomString := base64.URLEncoding.EncodeToString(bytes)[:length]
-	randomString = strings.ReplaceAll(randomString, "-", "")
-	randomString = strings.ReplaceAll(randomString, "_", "")
-	return randomString, nil
-}
-
-// 去掉图片后缀名
-func getFileNameWithoutExtension(filePath string) string {
-	return strings.TrimSuffix(filepath.Base(filePath), filepath.Ext(filePath))
 }
