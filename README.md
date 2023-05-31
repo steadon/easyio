@@ -112,9 +112,9 @@ param: path string    //目录路径，例如 name/group，将删除该目录及
 
 ```
 {
-    "username": "root",
-    "password": "123456",
-    "phone_num": "13812345678"
+    "username": "root",         //用户名
+    "password": "123456",       //密码
+    "phone_num": "13612345678"  //电话号码
 }
 ```
 
@@ -122,9 +122,12 @@ param: path string    //目录路径，例如 name/group，将删除该目录及
 
 ```
 {
-    "username": "root",
-    "password": "123456"
+    "username": "root",    //用户名
+    "password": "123456"   //密码
 }
+// 返回token，访问所有/action的接口都需要在请求头带上"Authorization":"token"
 ```
+
+---
 
 该项目正在加急研发中...

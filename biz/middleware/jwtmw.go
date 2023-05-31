@@ -1,8 +1,11 @@
 package middleware
 
 import (
+	"EasyIO/biz/pkg/setting"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"net/http"
 	"time"
 )
 
@@ -18,7 +21,7 @@ func GenerateToken(userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// 签名令牌
-	secret := []byte("your-secret-key") // 设置自己的密钥
+	secret := []byte(setting.SIGN) // 设置自己的密钥
 	signedToken, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
@@ -37,7 +40,7 @@ func VerifyAndParseToken(tokenString string) (*jwt.Token, error) {
 		}
 
 		// 返回密钥
-		return []byte("your-secret-key"), nil // 设置与签发时相同的密钥
+		return []byte(setting.SIGN), nil // 设置与签发时相同的密钥
 	})
 
 	if err != nil {
@@ -60,4 +63,15 @@ func ExtractUserIDFromToken(token *jwt.Token) (int64, error) {
 	}
 
 	return int64(userID), nil
+}
+
+// CheckRole 鉴权
+func CheckRole(c *gin.Context) {
+	// 鉴权
+	token := c.GetHeader("Authorization")
+	_, err := VerifyAndParseToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "身份过期"})
+		return
+	}
 }

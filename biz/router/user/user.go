@@ -13,14 +13,14 @@ import (
 func Sign(c *gin.Context) {
 	var req param.Sign
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	// 校验用户
 	check := mysql.QueryUserByName(req.Username)
 	if check != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "该用户名已被注册"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "该用户名已被注册"})
 		return
 	}
 	user := &model.User{
@@ -32,7 +32,8 @@ func Sign(c *gin.Context) {
 	// 新增用户
 	err := mysql.CreateUser(user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "新增用户失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "新增用户失败"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "注册成功"})
 }
@@ -41,27 +42,27 @@ func Sign(c *gin.Context) {
 func Login(c *gin.Context) {
 	var req param.Login
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	// 校验用户
 	check := mysql.QueryUserByName(req.Username)
 	if check == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "用户名尚未注册"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "用户名尚未注册"})
 		return
 	}
 
 	// 校验密码
 	if req.Password != check.Password {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "用户名或密码错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "用户名或密码错误"})
 		return
 	}
 
 	// 签发令牌
 	token, err := middleware.GenerateToken(int64(check.ID))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "令牌签发错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "令牌签发错误"})
 	}
 
 	// 返回令牌

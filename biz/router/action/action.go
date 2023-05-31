@@ -16,11 +16,14 @@ import (
 
 // UploadImg 上传图片
 func UploadImg(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	// 从请求中获取上传的文件
 	file, err := c.FormFile("file")
 	extension := filepath.Ext(file.Filename)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "文件上传失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "文件上传失败"})
 		return
 	}
 
@@ -45,7 +48,7 @@ func UploadImg(c *gin.Context) {
 	fullName := name + extension
 
 	if err := os.MkdirAll(folderPath, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "目录创建失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "目录创建失败"})
 		return
 	}
 
@@ -55,7 +58,7 @@ func UploadImg(c *gin.Context) {
 	// 创建一个新文件来保存上传的文件
 	dst, err := os.Create(dstPath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "文件创建失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "文件创建失败"})
 		log.Printf("err: %v\n", err)
 		return
 	}
@@ -64,14 +67,14 @@ func UploadImg(c *gin.Context) {
 	// 打开上传的文件
 	src, err := file.Open()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "无法打开文件"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "无法打开文件"})
 		return
 	}
 	defer src.Close()
 
 	// 将上传的文件内容拷贝到目标文件
 	if _, err := io.Copy(dst, src); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "文件拷贝失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "文件拷贝失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "文件上传成功"})
@@ -79,6 +82,9 @@ func UploadImg(c *gin.Context) {
 
 // ShowImg 下载图片
 func ShowImg(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	// 获取参数凭借路径
 	group := c.Query("group")
 	folderPath := filepath.Join(setting.StorageDir, group)
@@ -106,7 +112,7 @@ func ShowImg(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "文件遍历失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "文件遍历失败"})
 		return
 	}
 
@@ -115,6 +121,9 @@ func ShowImg(c *gin.Context) {
 
 // DeleteImg 删除图片
 func DeleteImg(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	// 获取文件或目录路径
 	path := c.Query("path")
 
@@ -124,7 +133,7 @@ func DeleteImg(c *gin.Context) {
 	// 删除文件
 	err := os.Remove(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除文件失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "删除文件失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "文件删除成功"})
@@ -132,17 +141,20 @@ func DeleteImg(c *gin.Context) {
 
 // AddDir 创建目录
 func AddDir(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	var req param.Group
 
 	// 创建目标目录
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 	folderPath := filepath.Join(setting.StorageDir, req.Name)
 
 	if err := os.MkdirAll(folderPath, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "目录创建失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "目录创建失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "目录创建成功"})
@@ -150,6 +162,9 @@ func AddDir(c *gin.Context) {
 
 // DeleteDir 删除目录
 func DeleteDir(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	// 获取文件或目录路径
 	path := c.Query("path")
 
@@ -159,7 +174,7 @@ func DeleteDir(c *gin.Context) {
 	// 删除目录
 	err := os.RemoveAll(dirPath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除目录失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "删除目录失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "目录删除成功"})
@@ -167,6 +182,9 @@ func DeleteDir(c *gin.Context) {
 
 // ShowRoot 获取目录
 func ShowRoot(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	// 指定目录路径
 	dirPath := setting.StorageDir
 
@@ -204,7 +222,7 @@ func ShowRoot(c *gin.Context) {
 	if err != nil {
 		// 处理遍历目录的错误
 		log.Printf("Failed to walk directory: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "遍历目录失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "遍历目录失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"dirPaths": dirPaths})
@@ -212,6 +230,9 @@ func ShowRoot(c *gin.Context) {
 
 // ShowDir 获取目录
 func ShowDir(c *gin.Context) {
+	// 鉴权
+	middleware.CheckRole(c)
+
 	// 指定目录路径
 	path := c.Query("group")
 
@@ -226,7 +247,7 @@ func ShowDir(c *gin.Context) {
 	if err != nil {
 		// 处理打开目录失败的错误
 		log.Printf("Failed to open directory: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "打开目录失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "打开目录失败"})
 		return
 	}
 	defer dir.Close()
@@ -236,7 +257,7 @@ func ShowDir(c *gin.Context) {
 	if err != nil {
 		// 处理读取目录内容失败的错误
 		log.Printf("Failed to read directory: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "读取目录失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "读取目录失败"})
 		return
 	}
 
