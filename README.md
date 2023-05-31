@@ -33,7 +33,7 @@ docker network create easyio-network
 - 启动mysql容器并接入内网（默认账号密码为 `root:123456` ），再手动创建一个名为 `easyio` 的数据库
 
 ```
-docker run --name mysql --network easyio-network -p 3305:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+docker run --name mysql --network easyio-network -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
 ```
 
 - 启动easyio容器并接入内网（这里以amd64版本举例），此时easyio会自动初始化数据库并创建表格
