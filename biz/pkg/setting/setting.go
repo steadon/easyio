@@ -17,9 +17,9 @@ var (
 	Prefix     string
 	StorageDir string
 
-	Dns string
-
-	SIGN string
+	Sign     string
+	Username string
+	Password string
 )
 
 func init() {
@@ -30,7 +30,6 @@ func init() {
 	}
 	LoadServer()
 	LoadIO()
-	LoadMysql()
 	LoadJWT()
 }
 
@@ -54,18 +53,13 @@ func LoadIO() {
 	StorageDir = sec.Key("STORAGE_DIR").MustString("images")
 }
 
-func LoadMysql() {
-	sec, err := Cfg.GetSection("mysql")
-	if err != nil {
-		log.Fatalf("Fail to get section 'request': %v", err)
-	}
-	Dns = sec.Key("DNS").MustString("root:123456@tcp(localhost:3305)/easyio?charset=utf8mb4&parseTime=True&loc=Local")
-}
-
 func LoadJWT() {
 	sec, err := Cfg.GetSection("jwt")
 	if err != nil {
 		log.Fatalf("Fail to get section 'request': %v", err)
 	}
-	SIGN = sec.Key("SIGN").MustString("easyio-key")
+
+	Sign = sec.Key("SIGN").MustString("easyio-key")
+	Username = sec.Key("USERNAME").MustString("root")
+	Password = sec.Key("PASSWORD").MustString("123456")
 }

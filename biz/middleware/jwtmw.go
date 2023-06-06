@@ -10,10 +10,10 @@ import (
 )
 
 // GenerateToken 签发 JWT 令牌
-func GenerateToken(userID int64) (string, error) {
+func GenerateToken(username string) (string, error) {
 	// 创建声明（Claims）
 	claims := jwt.MapClaims{
-		"sub": userID,
+		"sub": username,
 		"exp": time.Now().Add(time.Hour * 24).Unix(), // 设置过期时间为 24 小时
 	}
 
@@ -21,7 +21,7 @@ func GenerateToken(userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// 签名令牌
-	secret := []byte(setting.SIGN) // 设置自己的密钥
+	secret := []byte(setting.Sign) // 设置自己的密钥
 	signedToken, err := token.SignedString(secret)
 	if err != nil {
 		return "", err
@@ -40,7 +40,7 @@ func VerifyAndParseToken(tokenString string) (*jwt.Token, error) {
 		}
 
 		// 返回密钥
-		return []byte(setting.SIGN), nil // 设置与签发时相同的密钥
+		return []byte(setting.Sign), nil // 设置与签发时相同的密钥
 	})
 
 	if err != nil {
@@ -48,21 +48,6 @@ func VerifyAndParseToken(tokenString string) (*jwt.Token, error) {
 	}
 
 	return token, nil
-}
-
-// ExtractUserIDFromToken 从令牌中提取用户ID
-func ExtractUserIDFromToken(token *jwt.Token) (int64, error) {
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return 0, fmt.Errorf("invalid token claims")
-	}
-
-	userID, ok := claims["sub"].(float64)
-	if !ok {
-		return 0, fmt.Errorf("invalid user ID")
-	}
-
-	return int64(userID), nil
 }
 
 // CheckRole 鉴权
