@@ -8,7 +8,7 @@
 
 ## 1. 开始
 
-### 1.1 启动容器（1.0版本）
+### 1.1 启动容器
 
 - win/linux系统大多数使用以下指令
 
@@ -22,43 +22,35 @@ docker run --name your-easyio -p 8000:8000 -d steadon/easyio:1.0-amd64
 docker run --name your-easyio -p 8000:8000 -d steadon/easyio:1.0-arm64
 ```
 
-### 1.2 启动容器（1.1+版本）
-
-- 创建内网easyio-network供easyio容器与mysql容器交互
-
-```
-docker network create easyio-network
-```
-
-- 启动mysql容器并接入内网（默认账号密码为 `root:123456` ），再手动创建一个名为 `easyio` 的数据库
-
-```
-docker run --name mysql --network easyio-network -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
-```
-
-- 启动easyio容器并接入内网（这里以amd64版本举例），此时easyio会自动初始化数据库并创建表格
-
-```
-docker run --name easyio --network easyio-network -p 8000:8000 -d steadon/easyio:1.1-amd64
-```
-
 ### 1.2 其他准备
 
 - 本项目所有图片资源都存放在 `images` 目录下，正式部署需要挂载数据卷到宿主机，否则容器退出将导致数据丢失
 
 ```
--v /app/images:/local/images    //前提是已经在本地创建了/local/images文件夹
+-v /local/images:/app/images    //前提是已经在本地创建了/local/images文件夹
 ```
 
 - 本项目配置文件是位于 `config` 目录下的 `app.ini` 文件，涉及数据库等配置，如需要针对性管理也需要挂载出来
 
 ```
--v /config/app.ini:/local/config/app.ini    //前提是已经在本地创建了/local/config/app.ini文件
+-v /local/config/app.ini:/config/app.ini    //前提是已经在本地创建了/local/config/app.ini文件
+```
+
+- 通过以下命令可下载 `app.ini` 文件到本地
+
+```
+wget https://raw.githubusercontent.com/steadon/EasyIO/main/conf/app.ini
 ```
 
 ## 2. 使用
 
 ### 2.1 通过接口调用
+
+- 检索根下目录 GET /action/show/root
+
+```
+无需参数
+```
 
 - 创建指定目录 POST /action/add/dir
 
@@ -74,12 +66,6 @@ docker run --name easyio --network easyio-network -p 8000:8000 -d steadon/easyio
 form-data: file file       //上传的图片，支持常见类型如.jpeg .png .img
 form-data: group string    //目录路径，例如 name/group
 form-data: name string     //图片名，可带后缀，不传则用随机串代替
-```
-
-- 检索根下目录 GET /action/show/root
-
-```
-无需参数
 ```
 
 - 查看目录列表 GET /action/show/dir
@@ -106,26 +92,14 @@ param: path string    //文件路径，例如 name/group/xxx.png，将删除该�
 param: path string    //目录路径，例如 name/group，将删除该目录及其所有子文件
 ```
 
----
-
-- 用户注册 POST /user/sign _`v1.1`_
-
-```
-{
-    "username": "root",         //用户名
-    "password": "123456",       //密码
-    "phone_num": "13612345678"  //电话号码
-}
-```
-
-- 用户登录 POST /user/login _`v1.1`_
+- 用户登录 POST /user/login
 
 ```
 {
     "username": "root",    //用户名
     "password": "123456"   //密码
 }
-// 返回token，访问所有/action的接口都需要在请求头带上"Authorization":"token"
+// 返回token，访问所有/action的接口都需要在请求头带上 "Authorization":"token"
 ```
 
 ---
