@@ -10,8 +10,13 @@ var c = cache.New(5*time.Minute, 10*time.Minute)
 
 // DeleteCache 删除缓存
 func DeleteCache(k string) {
-	c.Delete(k)
-	log.Println("Cache deleted:", k)
+	_, found := c.Get(k)
+	if found == true {
+		c.Delete(k)
+		log.Println("Cache deleted:", k)
+	} else {
+		log.Println("Cache not found:", k)
+	}
 }
 
 // AddCache 添加缓存
