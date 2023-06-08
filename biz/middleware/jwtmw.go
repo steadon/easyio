@@ -51,12 +51,13 @@ func VerifyAndParseToken(tokenString string) (*jwt.Token, error) {
 }
 
 // CheckRole 鉴权
-func CheckRole(c *gin.Context) {
+func CheckRole(c *gin.Context) bool {
 	// 鉴权
 	token := c.GetHeader("Authorization")
 	_, err := VerifyAndParseToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "身份过期"})
-		return
+		return false
 	}
+	return true
 }
