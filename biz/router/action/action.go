@@ -147,7 +147,7 @@ func DeleteImg(c *gin.Context) {
 
 	// 删除图片所在缓存区的缓存
 	index := strings.LastIndex(path, "/")
-	go middleware.DeleteCache(path[:index+1])
+	go middleware.DeleteCache(path[:index])
 
 	// 拼接完整路径
 	filePath := filepath.Join(setting.StorageDir, path)
