@@ -25,19 +25,19 @@ docker run --name your-easyio -p 8000:8000 -d steadon/easyio:1.0
 
 ### 1.2 其他准备
 
-- 本项目所有图片资源都存放在 `images` 目录下，正式部署需要挂载数据卷到宿主机，否则容器退出将导致数据丢失
+- 图片资源存放在 `images` 目录下，正式部署需要挂载数据卷到宿主机，否则容器退出将导致数据丢失
 
 ```
 -v /local/images:/app/images    //前提是已经在本地创建了/local/images文件夹
 ```
 
-- 本项目配置文件是位于 `config` 目录下的 `app.ini` 文件，涉及数据库等配置，如需要针对性管理也需要挂载出来
+- 配置文件是位于 `config` 目录下的 `app.ini` 文件，涉及root账号密码等配置，正式部署需要挂载出来
 
 ```
 -v /local/config/app.ini:/config/app.ini    //前提是已经在本地创建了/local/config/app.ini文件
 ```
 
-- 通过以下命令可下载 `app.ini` 文件到本地
+- 通过以下命令可下载 `app.ini` 文件到本地并进行编辑
 
 ```
 wget https://raw.githubusercontent.com/steadon/EasyIO/main/conf/app.ini
