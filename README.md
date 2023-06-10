@@ -4,22 +4,23 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/steadon/easyio?color=green)
 ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/steadon/easyio)
 
-一个简易的对象存储服务后台，可以轻易借助宿主机实现对象存储服务
+一款轻量级对象存储服务器软件，它可以轻易地部署到任何服务器上并提供稳定快速的对象存储服务。
+- Author：[steadon](https://github.com/steadon)
+
+我想以下几点可能会成为你使用EasyIO的原因：
+- 使用 `Go` 和 `Gin` 开发，同时摒弃了数据库带来的厚重依赖，性能及独立性表现卓越
+- 通过 `Docker` 部署，支持 `Linux/amd` 和 `Linux/arm` 两种主流系统架构：[Docker Hub - steadon/easyio](https://hub.docker.com/repository/docker/steadon/easyio/general)
+- 提供了一套基于 `Java17` 和 `SpringBoot 3.1.0` 的SDK：[GitHub - steadon/easyio-sdk-java](https://github.com/steadon/easyio-sdk-java)
+- 同相似产品一样也提供了一套勉强能看的可视化界面：<链接待补充>
 
 ## 1. 开始
 
 ### 1.1 启动容器
 
-- win/linux系统大多数使用以下指令
+- 使用以下指令启动一个最简单的容器实例
 
 ```
-docker run --name your-easyio -p 8000:8000 -d steadon/easyio:1.0-amd64
-```
-
-- m1/m2芯片mac系统使用以下指令
-
-```
-docker run --name your-easyio -p 8000:8000 -d steadon/easyio:1.0-arm64
+docker run --name your-easyio -p 8000:8000 -d steadon/easyio:1.0
 ```
 
 ### 1.2 其他准备
